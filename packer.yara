@@ -17026,22 +17026,41 @@ condition:
 	
 	
 
-rule SimplePack1XMethod2bagie
+rule SimplePack1XMethod2 : bagie
 {
       meta:
 		author="_pusher_"
 		date = "2015-11"
 strings:
 		$a0 = { 4D 5A 90 EB 01 00 52 E9 ?? 01 00 00 50 45 00 00 4C 01 02 00 00 00 00 00 00 00 00 00 00 00 00 00 E0 00 0F 03 0B 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 0C 00 00 00 00 ?? ?? ?? 00 10 00 00 00 02 00 00 01 00 00 00 00 00 00 00 04 00 00 00 00 00 00 00 }
+		$a1 = { E8 00 00 00 00 5D 8D AD 69 FE FF FF 8B 9D 38 01 00 00 01 EB 8D 44 24 FC 50 6A 04 68 00 10 00 00 55 FF 53 30 B8 00 ?? ?? 00 89 85 94 00 00 00 8D B3 ?? ?? 00 00 8D BD 00 10 00 00 E8 70 00 00 00 BE }
 
 condition:
 		//it cannot load the PE properly so it fails to check imports
 		//pe.imports ("kernel32.dll","LoadLibraryA") and
 		//pe.imports ("kernel32.dll","GetProcAddress") and
 		//pe.imports ("kernel32.dll","VirtualProtect") and
-		$a0 at 0
+		$a0 at 0 and
+		$a1
 }
 
+rule SimplePack11XMethod2 : bagie
+{
+      meta:
+		author="_pusher_"
+		date = "2015-11"
+strings:
+		$a0 = { 4D 5A 90 EB 01 00 52 E9 ?? 01 00 00 50 45 00 00 4C 01 02 00 00 00 00 00 00 00 00 00 00 00 00 00 E0 00 0F 03 0B 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 0C 00 00 00 00 ?? ?? ?? 00 10 00 00 00 02 00 00 01 00 00 00 00 00 00 00 04 00 00 00 00 00 00 00 }
+		$a1 = { EB 01 CD 64 A1 30 00 00 00 EB 01 CD 8B 48 0C E3 6F EB 01 CD 05 AC 00 00 00 EB 01 CD 66 81 38 93 08 EB 01 CD 75 0A EB 01 CD B8 38 FF FF FF EB 14 EB 01 CD 66 81 38 28 0A 75 4A EB 01 CD B8 1A FF FF FF }
+
+condition:
+		//it cannot load the PE properly so it fails to check imports
+		//pe.imports ("kernel32.dll","LoadLibraryA") and
+		//pe.imports ("kernel32.dll","GetProcAddress") and
+		//pe.imports ("kernel32.dll","VirtualProtect") and
+		$a0 at 0 and
+		$a1
+}
 
 rule SimplePackV11XMethod2bagie
 {
@@ -20656,13 +20675,22 @@ strings:
 		//LoadLibraryA
 		$a1 = { 00 00 4C 6F 61 64 4C 69 62 72 61 72 79 41 00 }
 		//GetModuleHandleW
-		$a2 = { 00 00 47 65 74 4D 6F 64 75 6C 65 48 61 6E 64 6C 65 57 00 }		
+		$a2 = { 00 00 47 65 74 4D 6F 64 75 6C 65 48 61 6E 64 6C 65 57 00 }
+		//GetModuleFileNameW
+		$a3 = { 00 00 47 65 74 4D 6F 64 75 6C 65 46 69 6C 65 4E 61 6D 65 57 00 }
+		//GetModuleFileNameA
+		$a4 = { 00 00 47 65 74 4D 6F 64 75 6C 65 46 69 6C 65 4E 61 6D 65 41 00 }
 condition:
 		(
 		($a0 in (pe.sections[pe.section_index(pe.entry_point)].raw_data_offset..pe.sections[pe.section_index(pe.entry_point)].raw_data_offset+pe.sections[pe.section_index(pe.entry_point)].raw_data_size)) or
 		($a2 in (pe.sections[pe.section_index(pe.entry_point)].raw_data_offset..pe.sections[pe.section_index(pe.entry_point)].raw_data_offset+pe.sections[pe.section_index(pe.entry_point)].raw_data_size))
 		) and
 		($a1 in (pe.sections[pe.section_index(pe.entry_point)].raw_data_offset..pe.sections[pe.section_index(pe.entry_point)].raw_data_offset+pe.sections[pe.section_index(pe.entry_point)].raw_data_size)) 
+		and
+		(
+		($a3 in (pe.sections[pe.section_index(pe.entry_point)].raw_data_offset..pe.sections[pe.section_index(pe.entry_point)].raw_data_offset+pe.sections[pe.section_index(pe.entry_point)].raw_data_size)) or
+		($a4 in (pe.sections[pe.section_index(pe.entry_point)].raw_data_offset..pe.sections[pe.section_index(pe.entry_point)].raw_data_offset+pe.sections[pe.section_index(pe.entry_point)].raw_data_size))
+		)
 		//and
 		//pe.sections[pe.section_index(pe.entry_point)].name contains "vmp"
 }
