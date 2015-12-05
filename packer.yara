@@ -2480,6 +2480,24 @@ rule AutoIt : packer
 		$a
 }
 
+rule  AutoPlayMediaStudio : IndigoRose
+{
+      meta:
+		author="_pusher_"
+		date = "2015-12"
+		description = "Installer"
+strings:
+		//needs more samples from diffrent places
+		$a0 = { 50 4B 03 04 14 00 01 00 08 00 48 A2 CD 3A 2B E9 92 C3 A4 25 08 00 10 25 08 00 11 00 00 00 41 75 74 6F 50 6C 61 79 2F }
+		$a1 = { 50 4B 05 06 5A 69 70 41 72 63 68 69 76 65 20 4D 61 70 70 69 6E 67 20 46 69 6C 65 }
+		$a2 = { 0B 0B AF AF 0B 0B BF 00 00 00 }
+
+condition:
+		$a0 and $a1 and
+		//pe.overlay would be nice ;)
+		$a2 at (pe.sections[pe.number_of_sections-1].raw_data_offset+pe.sections[pe.number_of_sections-1].raw_data_size)
+}
+
 rule AverCryptor102betaos1r1s
 {
       meta:
@@ -2702,8 +2720,18 @@ strings:
 condition:
 		$a0 at pe.entry_point
 }
-	
-	
+
+rule BitRock_InstallBuilder : BitRock Inc
+{
+      meta:
+		author="_pusher_"
+		date = "2015-12"
+strings:
+		$a0 = { 0E 00 00 00 2E 65 68 5F 66 72 61 6D 65 00 }
+condition:
+			//at overlay
+		$a0 at (pe.sections[pe.number_of_sections-1].raw_data_offset+pe.sections[pe.number_of_sections-1].raw_data_size)
+}
 
 rule BJFntv11b
 {
@@ -3622,8 +3650,17 @@ strings:
 condition:
 		$a0 at pe.entry_point
 }
-	
-	
+
+rule DEF10 : bart xt
+{
+		meta:
+		author="_pusher_"
+		date = "2015-11"
+strings:
+		$a0 = { BE ?? 01 40 00 6A ?? 59 80 7E 07 00 74 11 8B 46 0C 05 00 00 40 00 8B 56 10 30 10 40 4A 75 FA 83 C6 28 E2 E4 68 ?? ?? 40 00 C3 }
+condition:
+		$a0 at pe.entry_point
+}
 
 rule DEF10bartxt
 {
@@ -3635,8 +3672,6 @@ strings:
 condition:
 		$a0 at pe.entry_point
 }
-	
-	
 
 rule DEFv10
 {
@@ -3644,7 +3679,7 @@ rule DEFv10
 		author="malware-lu"
 strings:
 		$a0 = { BE ?? 01 40 00 6A 05 59 80 7E 07 00 74 11 8B 46 }
-	$a1 = { BE ?? 01 40 00 6A ?? 59 80 7E 07 00 74 11 8B 46 0C 05 00 00 40 00 8B 56 10 30 10 40 4A 75 FA 83 C6 28 E2 E4 68 ?? 10 40 00 C3 }
+		$a1 = { BE ?? 01 40 00 6A ?? 59 80 7E 07 00 74 11 8B 46 0C 05 00 00 40 00 8B 56 10 30 10 40 4A 75 FA 83 C6 28 E2 E4 68 ?? 10 40 00 C3 }
 
 condition:
 		$a0 at pe.entry_point or $a1
@@ -6215,6 +6250,21 @@ condition:
 		$a0 at 0x3B4 and pe.entry_point == 0x200
 }
 
+rule FSG131 : dulek xt
+{
+      meta:
+		author="_pusher_"
+		date = "2015-11"
+strings:
+		//if this is modified its not really FSG is it ?
+		$a0 = { 4B 45 52 4E 45 4C 33 32 2E 64 6C 6C 00 00 00 4C 6F 61 64 4C 69 62 72 61 72 79 41 00 00 47 65 74 50 72 6F 63 41 64 64 72 65 73 73 00 }
+condition:
+					//Time_Date_Stamp 
+		($a0 at 0x188) and (pe.timestamp == 0x21475346) and
+		//FSG import table size
+		(uint32(uint32(0x3C)+0x84) == 0x00000034)
+}
+
 rule FSG133 : dulek xt
 {
       meta:
@@ -6223,9 +6273,11 @@ rule FSG133 : dulek xt
 strings:
 		//if this is modified its not really FSG is it ?
 		$a0 = { 4B 45 52 4E 45 4C 33 32 2E 64 6C 6C 00 00 00 4C 6F 61 64 4C 69 62 72 61 72 79 41 00 00 47 65 74 50 72 6F 63 41 64 64 72 65 73 73 00 }
-		$a1 = { 46 53 47 21 }
 condition:
-		($a0 at 0x154) and ($a1 at 0x14)
+					//Time_Date_Stamp
+		($a0 at 0x154) and (pe.timestamp == 0x21475346) and
+		//FSG import table size
+		(uint32(uint32(0x3C)+0x84) == 0x00000034)
 }
 
 rule FSG200 : bart xt
@@ -6236,9 +6288,9 @@ rule FSG200 : bart xt
 strings:
 		//if this is modified its not really FSG is it ?
 		$a0 = { 4B 45 52 4E 45 4C 33 32 2E 64 6C 6C 00 }
-		$a1 = { 46 53 47 21 }
 condition:
-		($a0 at 0x1F2) and ($a1 at 0x14) //and (pe.entry_point == 154)
+					//Time_Date_Stamp
+		($a0 at 0x1F2) and (pe.timestamp == 0x21475346) and (pe.entry_point == 154)
 }
 
 rule FSG131dulekxt
@@ -7290,9 +7342,11 @@ rule InnoSetupInstaller : Jordan Russel
 strings:
 		$a0 = { 72 44 6C 50 74 53 }
 		$a1 = { 49 6E 6E 6F 20 53 65 74 75 70 20 53 65 74 75 70 20 44 61 74 61 }
+		$a2 = { 7A 6C 62 }
 
 condition:
-		$a0 and $a1
+		$a0 and $a1 and
+		$a2 at (pe.sections[pe.number_of_sections-1].raw_data_offset+pe.sections[pe.number_of_sections-1].raw_data_size)
 }
 
 rule InnoSetupUnInstaller : Jordan Russel
@@ -7448,6 +7502,7 @@ rule IsArmadillo
 	pe.entry_point == 0x30000 or  //3.70a
 	pe.entry_point == 0x2C743 or  //4.00.0053
 	pe.entry_point == 0x32000 or  //4.00.0053 custom
+	pe.entry_point == 0x38BF2 or  //unknown ver
 	pe.entry_point == 0x3CD93 or  //4.10
 	pe.entry_point == 0x3CDB3 or  //4.20
 	pe.entry_point == 0x3CCB3 or  //4.20 custom
@@ -8961,20 +9016,35 @@ rule mumblehard_packer
 
 
 
-rule mupack_brad {
+rule mupack : Brad Miller {
 	meta:
 		author = "_pusher_"
-		description = "MUPack -> Brad Miller"
-		date = "2015-08"
-		version = "0.1"
+		date = "2015-12"
+		version = "0.2"
 	strings:
 		$c0 = { BB 00 00 00 00 8D 83 ?? ?? ?? ?? 53 50 8D 83 ?? ?? ?? ?? FF D0 8D 83 ?? ?? ?? ?? FF E0 }
-		$c1 = { BB 00 00 00 00 E9 03 00 00 00 C2 0C 00 8D 83 ?? ?? ?? ?? 53 50 8B 83 ?? ?? ?? ?? FF D0 8D 83 ?? ?? ?? ?? FF E0 }
+		$c1 = { BB 00 00 00 00 E9 03 00 00 00 C2 0C 00 8D 83 ?? ?? ?? ?? 53 50 ?? 83 ?? ?? ?? ?? FF D0 8D 83 ?? ?? ?? ?? FF E0 }
 	condition:
 		$c0 at pe.entry_point or
 		$c1 at pe.entry_point
 }
 
+rule Mystic_Compressor : UnKnownVer
+{
+		meta:
+		author="_pusher_"
+		date = "2015-12"
+strings:
+		$a0 = { 43 6D 44 49 41 4C 33 32 00 00 00 00 }
+		$a1 = { 44 65 6C 70 68 69 41 70 70 6C 69 63 61 74 69 6F 6E }
+condition:
+		pe.imports ("kernel32.dll","VirtualAlloc") and
+		pe.imports ("kernel32.dll","GetStartupInfoA") and
+		pe.imports ("kernel32.dll","OutputDebugStringA") and
+		pe.imports ("kernel32.dll","LoadLibraryA") and
+		($a0 in (pe.sections[1].raw_data_offset..pe.sections[2].raw_data_offset+pe.sections[2].raw_data_size)) and 
+		$a1
+}
 
 rule Mystic_Compressor120203
 {
@@ -8992,7 +9062,6 @@ condition:
 		$a0 and $a1
 }
 
-
 rule Mystic_Compressor120401
 {
 		meta:
@@ -9008,6 +9077,20 @@ condition:
 		$a0 and $a1
 }
 
+rule Mystic_Compressor_xxxx
+{
+		meta:
+		author="_pusher_"
+		date = "2015-12"
+strings:
+		$a0 = { 63 6D 63 66 67 33 32 2E 64 6C 6C 00 }
+		$a1 = { 22 58 2D 54 65 72 6D 34 22 }
+condition:
+		pe.imports ("kernel32.dll","GetStartupInfoA") and
+		pe.imports ("kernel32.dll","VirtualAlloc") and
+		pe.imports ("kernel32.dll","LoadLibraryA") and
+		$a0 and $a1
+}
 
 rule Mystic_Compressor120428
 {
@@ -9024,7 +9107,6 @@ condition:
 		$a0 and $a1
 }
 
-
 rule Mystic_Compressor120507
 {
 		meta:
@@ -9039,6 +9121,7 @@ condition:
 		pe.imports ("kernel32.dll","LoadLibraryA") and
 		$a0 and $a1
 }
+
 rule MZ_Crypt10byBrainSt0rm
 {
       meta:
@@ -9505,8 +9588,6 @@ strings:
 condition:
 		$a0 at pe.entry_point
 }
-	
-	
 
 rule NsPack14by : NorthStarLiuXingPing
 {
@@ -10755,8 +10836,19 @@ strings:
 condition:
 		$a0 at pe.entry_point
 }
-	
-	
+
+rule Parite_PE_Virus : Might_Be_Malware
+{
+      meta:
+		author="_pusher_"
+		date = "2015-12"
+strings:
+		$a0 = { 98 05 00 00 }
+condition:
+		pe.sections[pe.section_index(pe.entry_point)].name contains "\x07" and
+		pe.sections[pe.section_index(pe.entry_point)].name contains "." and
+		($a0 in (pe.entry_point..pe.entry_point+0x50))
+}
 
 rule PassEXEv20
 {
@@ -18544,9 +18636,13 @@ strings:
 		
 		$a3 = { 0F 85 51 FF FF FF 61 C9 C2 10 00 }
 		$a4 = { EB F2 5E 59 5B 58 C9 C2 10 00 }
+		//x64
+		$a5 = { EB F0 5E 59 5B 58 C9 C2 20 00 }
 
 condition:
-		$a0 and ($a1 or $a2) and ($a3 or $a4)
+		($a0 in (pe.entry_point..pe.entry_point+0x50)
+		and ($a1 or $a2)
+		and ($a3 or $a4 or $a5))
 }
 
 rule theWRAPbyTronDoc
@@ -19745,7 +19841,8 @@ condition:
 		((pe.linker_version.major == 0) and (pe.linker_version.minor == 51 )) or //0.33
 		((pe.linker_version.major == 75) and (pe.linker_version.minor == 69 )) or //0.34 and 0.36
 		((pe.linker_version.major == 0) and (pe.linker_version.minor == 53 )) or //0.35
-		((pe.linker_version.major == 76) and (pe.linker_version.minor == 111 )) //0.37,0.38,0.39,0.39f and 0.399
+		((pe.linker_version.major == 76) and (pe.linker_version.minor == 111 )) or //0.37,0.38,0.39,0.39f and 0.399
+		((pe.linker_version.major == 80) and (pe.linker_version.minor == 255 )) //Upack mutanter
 		
 		) and
 		//($a0 or $a1 or $a3 or $a4)
@@ -19820,12 +19917,16 @@ rule UPX_OEP_place
 {
       meta:
 		author="_pusher_"
-		date = "2015-11"
+		date = "2015-12"
 strings:
 		$a0 = { 74 3C 8B 5F 04 8D 84 ?? ?? ?? ?? ?? 01 F3 50 83 C7 08 FF 96 ?? ?? ?? ?? 95 8A 07 47 08 C0 74 DC 89 F9 57 48 F2 AE 55 FF 96 ?? ?? ?? ?? 09 C0 74 07 89 03 83 C3 04 EB E1 FF 96 ?? ?? ?? ?? 61 E9 }
-
+		$a1 = { 74 07 89 03 83 C3 04 ?? ?? FF 96 ?? ?? ?? ?? 8B AE ?? ?? ?? 00 8D BE 00 F0 FF FF BB 00 10 00 00 50 54 6A 04 53 57 FF D5 8D 87 ?? ?? 00 00 80 20 7F 80 60 28 7F 58 50 54 50 53 57 FF D5 58 61 8D 44 24 80 6A 00 39 C4 75 FA 83 EC 80 E9 }
+		$a2 = { 74 22 3C EF 77 11 01 C3 8B 03 86 C4 C1 C0 10 86 C4 01 F0 89 03 EB E2 24 0F C1 E0 10 66 8B 07 83 C7 02 EB E2 8B AE 30 20 01 00 8D BE 00 F0 FF FF BB 00 10 00 00 50 54 6A 04 53 57 FF D5 8D 87 5F 01 00 00 80 20 7F 80 60 28 7F 58 50 54 50 53 57 FF D5 58 61 8D 44 24 80 6A 00 39 C4 75 FA 83 EC 80 E9 }
+		//older upx
+		$a3 = { 75 F2 8B 07 8A 5F 04 66 C1 E8 08 C1 C0 10 86 C4 29 F8 80 EB E8 01 F0 89 07 83 C7 05 88 D8 E2 D9 8D BE 00 40 06 00 8B 07 09 C0 74 45 8B 5F 04 8D 84 30 70 83 06 00 01 F3 50 83 C7 08 FF 96 74 84 06 00 95 8A 07 47 08 C0 74 DC 89 F9 79 07 0F B7 07 47 50 47 B9 57 48 F2 AE 55 FF 96 78 84 06 00 09 C0 74 07 89 03 83 C3 04 EB D8 FF 96 7C 84 06 00 61 E9 }
+		$a4 = { 75 F2 8B 07 8A 5F 04 66 C1 E8 08 C1 C0 10 86 C4 29 F8 80 EB E8 01 F0 89 07 83 C7 05 ?? D8 E2 D9 8D BE 00 60 00 00 8B 07 09 C0 74 3C 8B 5F 04 8D 84 30 10 85 00 00 01 F3 50 83 C7 08 FF 96 4C 85 00 00 95 8A 07 47 08 C0 74 DC 89 F9 57 48 F2 AE 55 FF 96 50 85 00 00 09 C0 74 07 89 03 83 C3 04 EB E1 FF 96 54 85 00 00 61 E9 }
 condition:
-		$a0
+		any of them
 }
 
 
@@ -20025,7 +20126,7 @@ condition:
 }
 
 
-rule UPXLockCyberDoom
+rule UPXLock : CyberDoom
 {
       meta:
 		author="_pusher_"
@@ -20141,7 +20242,7 @@ condition:
 	
 	
 
-rule UPXShit001djsiba
+rule UPXShit001 : djsiba
 {
       meta:
 		author="_pusher_"
@@ -20154,7 +20255,7 @@ condition:
 }	
 	
 
-rule UPXShit006
+rule UPXShit006mal
 {
       meta:
 		author="malware-lu"
@@ -20167,7 +20268,7 @@ condition:
 	
 	
 
-rule UPXShit006snaker
+rule UPXShit006 : snaker
 {
       meta:
 		author="_pusher_"
@@ -20530,8 +20631,7 @@ strings:
 condition:
 		$a0
 }
-	
-	
+
 
 rule VMProtect106107PolyTech
 {
@@ -20543,8 +20643,29 @@ strings:
 condition:
 		$a0
 }
-	
-	
+
+
+rule VMProtect : VMProtect Software
+{
+      meta:
+		author="_pusher_"
+		date = "2015-12"
+strings:
+		//GetModuleHandleA
+		$a0 = { 00 00 47 65 74 4D 6F 64 75 6C 65 48 61 6E 64 6C 65 41 00 }
+		//LoadLibraryA
+		$a1 = { 00 00 4C 6F 61 64 4C 69 62 72 61 72 79 41 00 }
+		//GetModuleHandleW
+		$a2 = { 00 00 47 65 74 4D 6F 64 75 6C 65 48 61 6E 64 6C 65 57 00 }		
+condition:
+		(
+		($a0 in (pe.sections[pe.section_index(pe.entry_point)].raw_data_offset..pe.sections[pe.section_index(pe.entry_point)].raw_data_offset+pe.sections[pe.section_index(pe.entry_point)].raw_data_size)) or
+		($a2 in (pe.sections[pe.section_index(pe.entry_point)].raw_data_offset..pe.sections[pe.section_index(pe.entry_point)].raw_data_offset+pe.sections[pe.section_index(pe.entry_point)].raw_data_size))
+		) and
+		($a1 in (pe.sections[pe.section_index(pe.entry_point)].raw_data_offset..pe.sections[pe.section_index(pe.entry_point)].raw_data_offset+pe.sections[pe.section_index(pe.entry_point)].raw_data_size)) 
+		//and
+		//pe.sections[pe.section_index(pe.entry_point)].name contains "vmp"
+}
 
 rule VOBProtectCD
 {
@@ -22623,8 +22744,6 @@ strings:
 condition:
 		$a0 at pe.entry_point
 }
-	
-	
 
 rule ZealPack10Zeal
 {
@@ -22646,4 +22765,16 @@ strings:
 
 condition:
 		$a0 at pe.entry_point
+}
+
+rule _7_Zip_Installer : Igor Pavlov
+{
+      meta:
+		author="_pusher_"
+		date = "2015-12"
+strings:
+		$a0 = { 3B 21 40 49 6E 73 74 61 6C 6C 40 21 }
+condition:
+			//at overlay
+		$a0 at (pe.sections[pe.number_of_sections-1].raw_data_offset+pe.sections[pe.number_of_sections-1].raw_data_size)
 }
